@@ -11,6 +11,10 @@ maxConnections = 20
 
 app = Flask(__name__)
 api = Api(app)
+
+
+#REVIEW - these two different ways of connecting to the database are platform dependent which is doesnt make sense.
+# macos (presumed *nix) uses localhost, windows uses docker ip address
 try:
     pool = psycopg2.pool.ThreadedConnectionPool(minConnections, maxConnections, 
             host="172.16.238.11",
