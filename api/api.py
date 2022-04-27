@@ -11,12 +11,23 @@ maxConnections = 20
 
 app = Flask(__name__)
 api = Api(app)
-
-pool = psycopg2.pool.ThreadedConnectionPool(minConnections, maxConnections, 
-        host="172.16.238.11",
-        database="data",
-        user="docker",
-        password="password")
+try:
+    pool = psycopg2.pool.ThreadedConnectionPool(minConnections, maxConnections, 
+            host="172.16.238.11",
+            database="data",
+            user="docker",
+            password="password")
+except:
+    print("Unable to connect to database with 172.16.238.11 attempting to cooonect to localhost")
+    try:
+        pool = psycopg2.pool.ThreadedConnectionPool(minConnections, maxConnections, 
+            host="0.0.0.0",
+            database="data",
+            user="docker",
+            password="password")
+    except:
+        print("Unable to connect to database with 0.0.0.0")
+        sys.exit(1)
 
 if pool:
     print("Connection pool created")
