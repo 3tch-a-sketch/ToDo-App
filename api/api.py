@@ -1,15 +1,16 @@
 from flask import Flask, request
 from flask_restful import Api, Resource
+from flask_cors import CORS, cross_origin
 import os
 import psycopg2
 import psycopg2.pool
 import sys
 
-
 minConnections = 1
 maxConnections = 20
 
 app = Flask(__name__)
+CORS(app, support_credentials=True)
 api = Api(app)
 
 
@@ -22,7 +23,7 @@ try:
             user="docker",
             password="password")
 except:
-    print("Unable to connect to database with 172.16.238.11 attempting to cooonect to localhost")
+    print("Unable to connect to database with 172.16.238.11 attempting to connect to localhost")
     try:
         pool = psycopg2.pool.ThreadedConnectionPool(minConnections, maxConnections, 
             host="0.0.0.0",
@@ -49,15 +50,15 @@ class Todo(Resource):
         cur.close()
         pool.putconn(conn)
 
-        dic = {}
+        res = {}
         for r in range(len(rows)):
-            dic[r] = {
+            res[r] = {
                 "id": rows[r][0],
                 "title": rows[r][1],
                 "done": rows[r][2]
             }
 
-        return dic
+        return res
 
     def post(self): # create a new todo
         conn = pool.getconn()
@@ -120,9 +121,10 @@ def buildDatabase():
     cursor.close()
     pool.putconn(conn)
 
+@cross_origin(supports_credentials=True) # allows cross origin requests from the front end (browser) to the api (server) 
 @app.route('/')
 def hello():
-    return 'Hello, World!'
+    return 'Go to todo/ to see methods'
 
 
 if __name__ == '__main__':
@@ -136,7 +138,7 @@ if __name__ == '__main__':
     # api.add_resource(Todo, '/todo')
     api.add_resource(Todo, '/todo/')
 
-    # app.run(debug = True, host='0.0.0.0', port=port)
-    app.run(debug = False, host='0.0.0.0', port=port)
+    app.run(debug = True, host='0.0.0.0', port=port)
+    # app.run(debug = False, host='0.0.0.0', port=port)
 
 
