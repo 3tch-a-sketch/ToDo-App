@@ -32,7 +32,7 @@ Todo.defaultProps = {
 const style={
     border: "1px solid black",   
     padding: "10px",
-    margin: "1px",
+    margin: "-1px",
 }
 
 const cross={

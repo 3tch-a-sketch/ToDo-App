@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import Control from './components/Control.js'
 import Todos from './components/Todos.js'
 import "./GlobalStyle.css"
+import axios from 'axios'
 
+const apiUrl = 'http://'+window.location.hostname+':8000/todo/'
 
 
 function App() {
-
+  
 
   // window.addEventListener('load', getTodos)
   useEffect( () => { // this functions exactly like the code above but is the 'react' way of doing it
@@ -14,64 +16,88 @@ function App() {
   }, [])
 
   function changeComplete(id, done){
-    // TODO: change this so that it updates the todo in the database
 
-    let change = todos.find(todo => todo.id === id)
-    todos.splice(todos.indexOf(change), 1)
-    change.done = done
+    // let change = todos.find(todo => todo.id === id)
+    // todos.splice(todos.indexOf(change), 1)
+    // change.done = done
 
-    todos.push(change)
-    setTodos(todos)
+    // todos.push(change)
+    // setTodos(todos)
+    let idPos = todos.findIndex(todo => todo.id === id)
+
+    axios.put(apiUrl, {id: id, done: done, title: todos[idPos].title})
+
+
   }
 
   function deleteTodo(id){
-    // TODO: change this so that it deletes the todo from the server
-    setTodos(todos.filter(todo => todo.id !== id))
+    // setTodos(todos.filter(todo => todo.id !== id))
+    
+    axios.delete(apiUrl, { data: { id: id }}).then(res => {
+      console.log(res)
+      getTodos()
+    })
+
   }
-  function deleteMultipleTodos(id){
-    setTodos(todos.filter(todo => !id.includes(todo.id)))
+  function deleteMultipleTodos(ids){
+    // setTodos(todos.filter(todo => !id.includes(todo.id)))
+
+    for(let i = 0; i < ids.length; i++){
+      deleteTodo(ids[i])
+    }
+
   }
   function addTodo(title){
     // TODO: change this so that it adds the todo to the server
     
-    setTodos([...todos, {id: todos.length+1, title: title, done: false}])
+    // setTodos([...todos, {id: todos.length+1, title: title, done: false}])
+    axios.post(apiUrl, {
+      title: title,
+    }).then(res => {
+      console.log(res)
+    }).catch(err => {
+      console.log(err)
+    })
+    // getTodos()
   }
 
   function getTodos(){
-    var xhr = new XMLHttpRequest()
-    xhr.addEventListener('load', () => {
-      let json = JSON.parse(xhr.responseText)
+    axios.get(apiUrl).then(res => {
       let jsonArray = [];
 
-      for(let key in json){
-        jsonArray.push(json[key])
+      for(let key in res.data){
+        jsonArray.push(res.data[key])
       }
+      // console.log(jsonArray)
       setTodos(jsonArray)
     })
+  }
 
-    if(window.location.hostname === 'localhost'){
-      // console.log('running locally')
-      xhr.open('GET', 'http://127.0.0.1:8000/todo')
-    }else{
-      alert("this code has not been tested check console")
-      xhr.open('GET', "http://"+window.location.hostname+':8000/todo')
-      console.log(window.location.hostname)
-    }
+  function testPost(){
 
-    xhr.send()
+    axios.post(apiUrl, {
+      title: "test123",
+    }).then(res => {
+      console.log(res)
+    }).catch(err => {
+      console.log(err)
+    })
 
   }
+
 
   const [todos, setTodos] = useState([{id: 1, title: "default", done: false}])
 
 
   return (
     <div className="App">
+      <button onClick={getTodos}>Force update</button>
+      <button onClick={testPost}>test POST</button>
       <Control todos={todos} deleteMultipleTodos={deleteMultipleTodos} deleteTodo={deleteTodo} addTodo={addTodo} />
-      
       <Todos todos={todos} deleteTodo={deleteTodo} changeComplete={changeComplete}></Todos>
     </div>
   );
 }
+
 
 export default App;

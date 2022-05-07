@@ -10,13 +10,13 @@ const Control = ({ todos, deleteTodo, addTodo , deleteMultipleTodos}) => {
         console.log(todos)
         let deleteLater = []
         for(let i = 0; i < todos.length; i++){
-            console.log("checking", todos[i], i)
+            // console.log("checking", todos[i], i)
             if(todos[i].done === true){
                 // deleteTodo(todos[i].id)
                 deleteLater.push(todos[i].id)
             }
         }
-        console.log(deleteLater)
+        // console.log(deleteLater)
         
         deleteMultipleTodos(deleteLater)
         
@@ -28,13 +28,18 @@ const Control = ({ todos, deleteTodo, addTodo , deleteMultipleTodos}) => {
     }
 
   return (
-    <div className='container'>
+    <div className='container' style={style}>
         <label>Title:</label>
         <input ref={todoName} ></input>
         <button onClick={addTodoButton}>Add</button>
         <button onClick={purgeCompleted}>Purge Completed</button>
     </div>
   )
+}
+let style = {
+    // border: "1px solid black",
+    padding: "10px",
+    width: "400px",
 }
 
 export default Control

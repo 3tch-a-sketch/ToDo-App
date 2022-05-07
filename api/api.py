@@ -10,7 +10,9 @@ minConnections = 1
 maxConnections = 20
 
 app = Flask(__name__)
-CORS(app, support_credentials=True)
+# CORS(app, support_credentials=True)
+CORS(app, methods=['POST','GET','PUT','DELETE'])
+# cors = CORS(app, resources={r"/*": {"origins": "*"}})
 api = Api(app)
 
 
@@ -64,19 +66,33 @@ class Todo(Resource):
         conn = pool.getconn()
         cur = conn.cursor()
 
-        cur.execute("INSERT INTO todo (task, done) VALUES (%s, %s)", (request.form['title'], False))
-        conn.commit()
+        
+        # try:
+        #     title = request.form['title']
+        #     app.logger.info(request.form['title']) # this only works if the data has been submitted as form data python does this but js doesnt
 
+        # finally:
+        #     title = request.get_json()["title"]
+        #     app.logger.info(request.get_json()["title"]) # this only works if the data has been submitted normally as json data python doesn't do this in the configuration in testing.py
+
+
+        title = request.get_json()["title"]
+
+        cur.execute("INSERT INTO todo (task, done) VALUES (%s, %s)", (title, False))
+        conn.commit()
+        
+        
         cur.close()
         pool.putconn(conn)
+
+
         return 200
 
     def put(self): # update a todo
-
         conn = pool.getconn()
         cur = conn.cursor()
 
-        cur.execute("UPDATE todo SET task = %s, done = %s WHERE id = %s", (request.form['title'], request.form['done'], request.form['id']))
+        cur.execute("UPDATE todo SET task = %s, done = %s WHERE id = %s", (request.get_json()['title'], request.get_json()['done'], request.get_json()['id']))
         conn.commit()
 
         cur.close()
@@ -88,7 +104,12 @@ class Todo(Resource):
         conn = pool.getconn()
         cur = conn.cursor()
 
-        cur.execute("DELETE FROM todo WHERE id = %s", (request.form['id'],))
+        # app.logger.info(request.get_json()["id"])
+
+        # app.logger.info("delete request received")
+        # app.logger.info(request.get_json())
+
+        cur.execute("DELETE FROM todo WHERE id = %s", (request.get_json()['id'],))
         conn.commit()
 
         cur.close()
@@ -96,6 +117,10 @@ class Todo(Resource):
 
         return 200
     
+    def options(self):
+        return 200
+    
+
 
 
 def buildDatabase():
@@ -121,10 +146,15 @@ def buildDatabase():
     cursor.close()
     pool.putconn(conn)
 
-@cross_origin(supports_credentials=True) # allows cross origin requests from the front end (browser) to the api (server) 
+# @cross_origin(supports_credentials=True) # allows cross origin requests from the front end (browser) to the api (server) 
 @app.route('/')
 def hello():
     return 'Go to todo/ to see methods'
+
+# @app.after_request
+# def after_request(response):
+#     response.headers.add('Access-Control-Allow-Origin', '*')
+#     return response
 
 
 if __name__ == '__main__':
