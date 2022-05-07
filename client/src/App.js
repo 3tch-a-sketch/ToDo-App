@@ -48,7 +48,6 @@ function App() {
 
   }
   function addTodo(title){
-    // TODO: change this so that it adds the todo to the server
     
     // setTodos([...todos, {id: todos.length+1, title: title, done: false}])
     axios.post(apiUrl, {
@@ -72,20 +71,7 @@ function App() {
       setTodos(jsonArray)
     })
   }
-
-  function testPost(){
-
-    axios.post(apiUrl, {
-      title: "test123",
-    }).then(res => {
-      console.log(res)
-    }).catch(err => {
-      console.log(err)
-    })
-
-  }
-
-
+  
   const [todos, setTodos] = useState([{id: 1, title: "default", done: false}])
 
 
