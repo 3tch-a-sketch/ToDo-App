@@ -54,11 +54,11 @@ function App() {
     axios.post(apiUrl, {
       title: title,
     }).then(res => {
+      getTodos()
       console.log(res)
     }).catch(err => {
       console.log(err)
     })
-    // getTodos()
   }
 
   function getTodos(){
@@ -91,8 +91,8 @@ function App() {
 
   return (
     <div className="App">
-      <button onClick={getTodos}>Force update</button>
-      <button onClick={testPost}>test POST</button>
+      {/* <button onClick={getTodos}>Force update</button>
+      <button onClick={testPost}>test POST</button> */}
       <Control todos={todos} deleteMultipleTodos={deleteMultipleTodos} deleteTodo={deleteTodo} addTodo={addTodo} />
       <Todos todos={todos} deleteTodo={deleteTodo} changeComplete={changeComplete}></Todos>
     </div>
